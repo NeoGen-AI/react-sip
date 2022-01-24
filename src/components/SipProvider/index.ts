@@ -17,13 +17,12 @@ import {
   SIP_STATUS_DISCONNECTED,
   SIP_STATUS_ERROR,
   SIP_STATUS_REGISTERED,
-} from "../../lib/enums";
-import {
   CallDirection,
   CallStatus,
   SipErrorType,
   SipStatus,
 } from "../../lib/enums";
+
 import {
   callPropType,
   ExtraHeaders,
