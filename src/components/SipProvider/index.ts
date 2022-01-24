@@ -246,6 +246,7 @@ export default class SipProvider extends React.Component<
   };
 
   public startCall = (destination) => {
+    console.error("xyz")
     if (!destination) {
       throw new Error(`Destination must be defined (${destination} given)`);
     }
