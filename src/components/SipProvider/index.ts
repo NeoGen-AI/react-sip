@@ -298,7 +298,7 @@ export default class SipProvider extends React.Component<
       JsSIP.debug.enable("JsSIP:*");
       this.logger = console;
     } else {
-      JsSIP.debug.disable("JsSIP:*");
+      JsSIP.debug.disable();
       this.logger = dummyLogger;
     }
   }

@@ -10,7 +10,7 @@ React wrapper for [jssip](https://github.com/versatica/JsSIP).
 ## Installation
 
 ```bash
-npm install react-sip
+yarn add react-sip
 ```
 
 There is no need to install `jssip` as it is a dependency of `react-sip`.
