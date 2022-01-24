@@ -1,6 +1,6 @@
 # React SIP
 
-[![license](https://img.shields.io/github/license/callthemonline/react-sip.svg)](https://github.com/callthemonline/react-sip/blob/master/LICENSE)
+[![license](https://img.shields.io/github/license/callthemonline/react-sip.svg)](https://github.com/NeoGen-AI/react-sip/blob/master/LICENSE)
 [![npm version](https://img.shields.io/npm/v/react-sip.svg)](https://www.npmjs.com/package/react-sip)
 [![npm downloads](https://img.shields.io/npm/dy/react-sip.svg)](https://www.npmjs.com/package/react-sip)
 [![build status](https://travis-ci.org/callthemonline/react-sip.svg?branch=master)](https://travis-ci.org/callthemonline/react-sip)
