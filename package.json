@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/NeoGen-AI/react-sip"
+    "url": "https://github.com/Voicio/react-sip"
   },
   "keywords": [
     "react",
@@ -25,9 +25,9 @@
   "author": "callthemonline (https://callthem.online/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/NeoGen-AI/react-sip/issues"
+    "url": "https://github.com/Voicio/react-sip/issues"
   },
-  "homepage": "https://github.com/NeoGen-AI/react-sip#readme",
+  "homepage": "https://github.com/Voicio/react-sip#readme",
   "dependencies": {
     "jssip": "^3.2.15",
     "prop-types": "^15.6.2"
