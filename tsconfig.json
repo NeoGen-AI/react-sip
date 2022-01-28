@@ -12,9 +12,10 @@
     "pretty": true,
     "removeComments": true,
     "lib": ["es6", "esnext.asynciterable", "dom"],
-
+    "baseUrl": "src",
     "outDir": "dist",
     "rootDir": "src"
+
   },
   "include": ["src"]
 }

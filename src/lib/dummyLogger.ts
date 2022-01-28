@@ -1,14 +1,14 @@
 const dummyLogger = {
-  log: () => {
+  log: (...args: any) => {
     /**/
   },
-  error: () => {
+  error: (...args: any) => {
     /**/
   },
-  warn: () => {
+  warn: (...args: any) => {
     /**/
   },
-  debug: () => {
+  debug: (...args: any) => {
     /**/
   },
 };
