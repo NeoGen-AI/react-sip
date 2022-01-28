@@ -2,26 +2,54 @@ import * as React from "react";
 import * as JsSIP from "jssip";
 import * as PropTypes from "prop-types";
 import dummyLogger from "../../lib/dummyLogger";
-import {
-  CALL_DIRECTION_INCOMING,
-  CALL_DIRECTION_OUTGOING,
-  CALL_STATUS_ACTIVE,
-  CALL_STATUS_IDLE,
-} from "../../lib/enums";
 
 import { ISip } from 'lib/interfaces'
-
+import { defaultState, SipReducer, updateReducer } from 'lib/reducer'
+import { ECallDirection } from "lib/interfaces/sip";
 
 
 
 const SipProvider = ({
   host, port,
-  pathname, user,
-  password, autoRegister
+  pathname, user, password,
+  autoRegister, autoAnswer, extraHeaders,
+  children, debug
 }) => {
   const [userAgent, setUserAgent] = React.useState<null | any>(null);
-  const [rtcSession, setRtcSession] = React.useState<null | any>(null)
-  const logger = dummyLogger;
+  const [activeRtcSession, setActiveRtcSession] = React.useState<null | any>(null);
+  const [logger, setLogger] = React.useState<any | null>(dummyLogger);
+
+  const [sipState, dispatch] = React.useReducer(SipReducer, defaultState);
+
+  let remoteAudio = window.document.createElement("audio");
+
+  React.useEffect(() => {
+    mountAudioElement();
+    configureDebug();
+    initializeJsSIP();
+  }, []);
+
+  const mountAudioElement = () => {
+    if (window.document.getElementById("sip-provider-audio")) {
+      throw new Error(
+        `Creating two SipProviders in one application is forbidden. If that's not the case ` +
+        `then check if you're using "sip-provider-audio" as id attribute for any existing ` +
+        `element`,
+      );
+    }
+    remoteAudio.id = "sip-provider-audio";
+    window.document.body.appendChild(remoteAudio);
+  }
+
+  const configureDebug = () => {
+    if (debug) {
+      JsSIP.debug.enable("JsSIP:*");
+      setLogger(console);
+    } else {
+      JsSIP.debug.disable();
+      setLogger(dummyLogger);
+    }
+  }
 
   const setSipStatus = (
     status: ISip.EStatus,
@@ -30,11 +58,8 @@ const SipProvider = ({
     if (error) {
       logger.debug("Error", error.message, error.data);
     }
-    // this.setState({
-    //   sipStatus: SIP_STATUS_ERROR,
-    //   sipErrorType: SIP_ERROR_TYPE_CONFIGURATION,
-    //   sipErrorMessage: error.message,
-    // });
+    dispatch(updateReducer({ status, error }))
+
   }
 
   const setCallStatus = (
@@ -42,9 +67,15 @@ const SipProvider = ({
     direction?: ISip.ECallDirection | null,
     counterpart?: string | null
   ) => {
+
+    dispatch(updateReducer({
+      callStatus: status,
+      callDirection: direction,
+      callCounterpart: counterpart
+    }))
   }
 
-  const reinitializeJsSIP = () => {
+  const initializeJsSIP = () => {
     if (userAgent) {
       userAgent.stop();
       setUserAgent(null);
@@ -123,7 +154,7 @@ const SipProvider = ({
 
     userAgent.on(
       "newRTCSession",
-      ({ originator, session, request: rtcRequest }) => {
+      ({ originator, session: newRtcSession, request: rtcRequest }) => {
         // if (!this || this.ua !== ua) {
         //   return;
         // }
@@ -146,46 +177,36 @@ const SipProvider = ({
             foundUri.substring(0, delimiterPosition) || foundUri
           )
         }
-  
+
         // Avoid if busy or other incoming
-        if (rtcSession) {
+        if (activeRtcSession) {
           logger.debug('incoming call replied with 486 "Busy Here"');
-          session.terminate({
+          newRtcSession.terminate({
             status_code: 486,
             reason_phrase: "Busy Here",
           });
           return;
         }
-        setRtcSession(session);
 
-        rtcSession.on("failed", () => {
-          // if (this.ua !== ua) {
-          //   return;
-          // }
-          setRtcSession(null);
-          setCallStatus(ISip.ECallStatus.Idle, null, null)
-  
-        });
+        setActiveRtcSession(newRtcSession);
 
-        rtcSession.on("ended", () => {
-          // if (this.ua !== ua) {
-          //   return;
-          // }
-          setRtcSession(null);
+        newRtcSession.on("failed", () => {
+          setActiveRtcSession(null);
           setCallStatus(ISip.ECallStatus.Idle, null, null)
 
         });
 
-        rtcSession.on("accepted", () => {
-          // if (this.ua !== ua) {
-          //   return;
-          // }
+        newRtcSession.on("ended", () => {
+          setActiveRtcSession(null);
+          setCallStatus(ISip.ECallStatus.Idle, null, null)
 
+        });
+
+        newRtcSession.on("accepted", () => {
           [
-            this.remoteAudio.srcObject,
-          ] = rtcSession.connection.getRemoteStreams();
-          // const played = this.remoteAudio.play();
-          const played = this.remoteAudio.play();
+            remoteAudio.srcObject,
+          ] = newRtcSession.connection.getRemoteStreams();
+          const played = remoteAudio.play();
 
           if (typeof played !== "undefined") {
             played
@@ -194,42 +215,43 @@ const SipProvider = ({
               })
               .then(() => {
                 setTimeout(() => {
-                  this.remoteAudio.play();
+                  remoteAudio.play();
                 }, 2000);
               });
-            this.setState({ callStatus: CALL_STATUS_ACTIVE });
+            setCallStatus(ISip.ECallStatus.Active)
             return;
           }
 
           setTimeout(() => {
-            this.remoteAudio.play();
+            remoteAudio.play();
           }, 2000);
-
-          this.setState({ callStatus: CALL_STATUS_ACTIVE });
+          setCallStatus(ISip.ECallStatus.Active)
         });
 
-        if (
-          this.state.callDirection === CALL_DIRECTION_INCOMING &&
-          this.props.autoAnswer
-        ) {
-          logger.log("Answer auto ON");
-          this.answerCall();
-        } else if (
-          this.state.callDirection === CALL_DIRECTION_INCOMING &&
-          !this.props.autoAnswer
-        ) {
-          logger.log("Answer auto OFF");
-        } else if (this.state.callDirection === CALL_DIRECTION_OUTGOING) {
-          logger.log("OUTGOING call");
-        }
-      },
-    );
 
-    const extraHeadersRegister = this.props.extraHeaders.register || [];
+        if (
+          sipState.callDirection === ISip.ECallDirection.Incoming &&
+          autoAnswer
+        ) {
+          logger.log("Answer auto: ON");
+          // this.answerCall();
+        } else if (
+          sipState.callDirection === ISip.ECallDirection.Incoming &&
+          !autoAnswer
+        ) {
+          logger.log("Answer auto: OFF");
+        } else if (sipState.callDirection === ISip.ECallDirection.Outgoing) {
+          logger.log("Outgoing call");
+        }
+      })
+
+
+    const extraHeadersRegister = extraHeaders.register || [];
     if (extraHeadersRegister.length) {
       userAgent.registrator().setExtraHeaders(extraHeadersRegister);
     }
     userAgent.start();
   }
-}
+
+  return children;
 }
