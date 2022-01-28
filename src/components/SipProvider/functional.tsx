@@ -1,34 +1,38 @@
 import * as React from "react";
 import * as JsSIP from "jssip";
-import * as PropTypes from "prop-types";
 import dummyLogger from "../../lib/dummyLogger";
 
 import { ISip } from 'lib/interfaces'
 import { defaultState, SipReducer, updateReducer } from 'lib/reducer'
-import { ECallDirection } from "lib/interfaces/sip";
 
 
 
 const SipProvider = ({
-  host, port,
-  pathname, user, password,
-  autoRegister, autoAnswer, extraHeaders,
+  config,
+  options: {
+    autoRegister, autoAnswer, extraHeaders,
+  },
   children, debug
 }) => {
   const [userAgent, setUserAgent] = React.useState<null | any>(null);
   const [activeRtcSession, setActiveRtcSession] = React.useState<null | any>(null);
   const [logger, setLogger] = React.useState<any | null>(dummyLogger);
-
   const [sipState, dispatch] = React.useReducer(SipReducer, defaultState);
-
-  let remoteAudio = window.document.createElement("audio");
-
+  const remoteAudio = React.useRef<any>(null);
+  const { host, port, pathname, user, password } = config;
+  
   React.useEffect(() => {
     mountAudioElement();
-    configureDebug();
-    initializeJsSIP();
   }, []);
 
+  React.useEffect(() => {
+    initializeJsSIP();
+  }, Object.values(config));
+  
+  React.useEffect(() => {
+    configureDebug();
+  }, [debug]);
+  
   const mountAudioElement = () => {
     if (window.document.getElementById("sip-provider-audio")) {
       throw new Error(
@@ -37,8 +41,9 @@ const SipProvider = ({
         `element`,
       );
     }
-    remoteAudio.id = "sip-provider-audio";
-    window.document.body.appendChild(remoteAudio);
+    remoteAudio.current = window.document.createElement("audio");
+    remoteAudio.current.id = "sip-provider-audio";
+    window.document.body.appendChild(remoteAudio.current);
   }
 
   const configureDebug = () => {
@@ -204,9 +209,9 @@ const SipProvider = ({
 
         newRtcSession.on("accepted", () => {
           [
-            remoteAudio.srcObject,
+            remoteAudio.current.srcObject,
           ] = newRtcSession.connection.getRemoteStreams();
-          const played = remoteAudio.play();
+          const played = remoteAudio.current.play();
 
           if (typeof played !== "undefined") {
             played
@@ -215,7 +220,7 @@ const SipProvider = ({
               })
               .then(() => {
                 setTimeout(() => {
-                  remoteAudio.play();
+                  remoteAudio.current.play();
                 }, 2000);
               });
             setCallStatus(ISip.ECallStatus.Active)
@@ -223,7 +228,7 @@ const SipProvider = ({
           }
 
           setTimeout(() => {
-            remoteAudio.play();
+            remoteAudio.current.play();
           }, 2000);
           setCallStatus(ISip.ECallStatus.Active)
         });
@@ -255,3 +260,5 @@ const SipProvider = ({
 
   return children;
 }
+
+export default SipProvider;
