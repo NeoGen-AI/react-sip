@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as JsSIP from "jssip";
-import dummyLogger from "../../lib/dummyLogger";
 
+import dummyLogger from "lib/dummyLogger";
 import { ISip } from 'lib/interfaces'
 import { defaultState, SipReducer, updateReducer } from 'lib/reducer'
 
@@ -10,9 +10,12 @@ import { defaultState, SipReducer, updateReducer } from 'lib/reducer'
 const SipProvider = ({
   config,
   options: {
-    autoRegister, autoAnswer, extraHeaders,
+    autoRegister,
+    autoAnswer,
+    extraHeaders,
+    debug
   },
-  children, debug
+  children,
 }) => {
   const [userAgent, setUserAgent] = React.useState<null | any>(null);
   const [activeRtcSession, setActiveRtcSession] = React.useState<null | any>(null);
@@ -20,7 +23,7 @@ const SipProvider = ({
   const [sipState, dispatch] = React.useReducer(SipReducer, defaultState);
   const remoteAudio = React.useRef<any>(null);
   const { host, port, pathname, user, password } = config;
-  
+
   React.useEffect(() => {
     mountAudioElement();
   }, []);
@@ -28,11 +31,11 @@ const SipProvider = ({
   React.useEffect(() => {
     initializeJsSIP();
   }, Object.values(config));
-  
+
   React.useEffect(() => {
     configureDebug();
   }, [debug]);
-  
+
   const mountAudioElement = () => {
     if (window.document.getElementById("sip-provider-audio")) {
       throw new Error(
