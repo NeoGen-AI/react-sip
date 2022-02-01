@@ -2,12 +2,10 @@ import * as React from "react";
 import * as JsSIP from "jssip";
 
 import dummyLogger from "../../lib/dummyLogger";
-import { ISip } from '../../lib/interfaces'
+import { ISip, IProps} from '../../lib/interfaces'
 import { defaultState, SipReducer, updateReducer } from '../../lib/reducer'
 
-
-
-const SipProvider = ({
+const SipProvider: React.FC<IProps> = ({
   config,
   options: {
     autoRegister,

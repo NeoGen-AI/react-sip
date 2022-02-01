@@ -1,14 +1,6 @@
-import { ISip } from 'lib/interfaces'
+import { ISip, ISipReducer, EActionTypes, IAction } from 'lib/interfaces'
 
-export type SipState = {
-  status: ISip.EStatus;
-  error: ISip.IError | null;
-  callStatus: ISip.ECallStatus;
-  callDirection: ISip.ECallDirection | null;
-  callCounterpart: string | null;
-}
-
-export const defaultState: SipState = {
+export const defaultState: ISipReducer = {
   status: ISip.EStatus.Disconnected,
   error: null,
   callStatus: ISip.ECallStatus.Idle,
@@ -16,14 +8,7 @@ export const defaultState: SipState = {
   callCounterpart: null,
 }
 
-export enum EActionTypes {
-  UpdateState = 'UPDATE_STATE',
-}
 
-export type IAction = {
-  type: EActionTypes,
-  payload?: any;
-}
 
 export const updateReducer = (payload): IAction => ({
   type: EActionTypes.UpdateState,
@@ -33,7 +18,7 @@ export const updateReducer = (payload): IAction => ({
 export const SipReducer = (
   state,
   { type, payload = {} }: IAction
-): SipState => {
+): ISipReducer => {
   switch(type) {
     case EActionTypes.UpdateState:
         return {

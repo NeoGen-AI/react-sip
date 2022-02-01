@@ -1,3 +1,4 @@
+
 export enum EStatus {
   Disconnected = "sipStatus/DISCONNECTED",
   Connecting = "sipStatus/CONNECTING",
@@ -5,7 +6,6 @@ export enum EStatus {
   Registered = "sipStatus/REGISTERED",
   Error = "sipStatus/ERROR"
 }
-
 
 export enum EErrorTypes {
   Configuration = "sipErrorType/CONFIGURATION",
@@ -22,7 +22,6 @@ export interface IError {
 export interface ICall {
   status: ECallStatus,
   direction: ECallDirection,
-
 }
 
 export enum ECallStatus {
