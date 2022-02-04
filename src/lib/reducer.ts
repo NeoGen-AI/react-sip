@@ -1,4 +1,4 @@
-import { ISip, ISipReducer, EActionTypes, IAction } from 'lib/interfaces'
+import { ISip, ISipReducer, EActionTypes, IAction } from './interfaces'
 
 export const defaultState: ISipReducer = {
   status: ISip.EStatus.Disconnected,

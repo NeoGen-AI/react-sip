@@ -12,7 +12,7 @@ var __assign = (this && this.__assign) || function () {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SipReducer = exports.updateReducer = exports.defaultState = void 0;
-var interfaces_1 = require("lib/interfaces");
+var interfaces_1 = require("./interfaces");
 exports.defaultState = {
     status: interfaces_1.ISip.EStatus.Disconnected,
     error: null,
