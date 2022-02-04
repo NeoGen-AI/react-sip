@@ -252,7 +252,7 @@ const SipProvider: React.FC<IProps> = ({
       })
 
 
-    const extraHeadersRegister = extraHeaders.register || [];
+    const extraHeadersRegister = extraHeaders?.register || [];
     if (extraHeadersRegister.length) {
       userAgent.registrator().setExtraHeaders(extraHeadersRegister);
     }
