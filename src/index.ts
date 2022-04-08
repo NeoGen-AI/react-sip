@@ -1,4 +1,4 @@
-import SipProvider from "./components/SipProvider/functional";
+import SipProvider from "./components/functional";
 
 export * from "./lib/enums";
 export * from "./lib/types";

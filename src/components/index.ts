@@ -1,7 +1,7 @@
 import * as JsSIP from "jssip";
 import * as PropTypes from "prop-types";
 import * as React from "react";
-import dummyLogger from "../../lib/dummyLogger";
+import dummyLogger from "../lib/dummyLogger";
 import {
   CALL_DIRECTION_INCOMING,
   CALL_DIRECTION_OUTGOING,
@@ -21,7 +21,7 @@ import {
   CallStatus,
   SipErrorType,
   SipStatus,
-} from "../../lib/enums";
+} from "../lib/enums";
 
 import {
   callPropType,
@@ -30,7 +30,7 @@ import {
   IceServers,
   iceServersPropType,
   sipPropType,
-} from "../../lib/types";
+} from "../lib/types";
 
 export default class SipProvider extends React.Component<
   {
