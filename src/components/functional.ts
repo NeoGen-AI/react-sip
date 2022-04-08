@@ -195,7 +195,7 @@ const SipProvider = ({
 
     try {
       const socket = new JsSIP.WebSocketInterface(
-        `ws://${host}:${port}${pathname}`,
+        `wss://${host}:${port}${pathname}`,
       );
       ua = new JsSIP.UA({
         uri: `sip:${username}@${host}`,
