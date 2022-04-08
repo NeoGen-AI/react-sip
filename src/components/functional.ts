@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as JsSIP from 'jssip';
 
-import dummyLogger from '../lib/dummyLogger';
+import sipLogger from '../lib/logger';
 import { ISip, IProps } from '../lib/interfaces';
 import { defaultState, SipReducer, updateReducer } from './reducer';
 
@@ -19,14 +19,14 @@ const SipProvider = ({
 }: IProps) => {
   const [userAgent, setUserAgent] = React.useState<null | any>(null);
   const [
-    activeRtcSession, 
+    activeRtcSession,
     setActiveRtcSession
   ] = React.useState<null | any>(null);
-  const [logger, setLogger] = React.useState<any | null>(dummyLogger);
+  const [logger, setLogger] = React.useState<any | null>(sipLogger);
   const [sipState, dispatch] = React.useReducer(SipReducer, defaultState);
   const remoteAudio = React.useRef<any>(null);
   const { host, port, username, password, pathname = '' } = config;
-  console.log(sipState)
+  console.log(sipState);
   React.useEffect(() => {
     mountAudioElement();
   }, []);
@@ -58,7 +58,7 @@ const SipProvider = ({
       setLogger(console);
     } else {
       JsSIP.debug.disable();
-      setLogger(dummyLogger);
+      setLogger(sipLogger);
     }
   };
 
@@ -67,7 +67,7 @@ const SipProvider = ({
     error?: ISip.IError
   ) => {
     if (error) {
-      logger.debug('Error', error.message, error.data);
+      logger.error(error.message, error.data);
     }
     dispatch(updateReducer({ status, error }));
 
@@ -109,8 +109,7 @@ const SipProvider = ({
     }
     if (sipState.status !== ISip.EStatus.Registered) {
       throw new Error(
-        `Calling unregisterSip is not allowed when sip status is ${
-          sipState.status 
+        `Calling unregisterSip is not allowed when sip status is ${sipState.status
         } (expected ${ISip.EStatus.Registered})`,
       );
     }
@@ -151,7 +150,7 @@ const SipProvider = ({
     userAgent.call(destination, options);
     setCallStatus(ISip.ECallStatus.Starting);
   };
-  
+
   const stopCall = () => {
     setCallStatus(ISip.ECallStatus.Stopping);
     userAgent.terminateSessions();
@@ -163,11 +162,9 @@ const SipProvider = ({
       sipState.callDirection !== ISip.ECallDirection.Incoming
     ) {
       throw new Error(
-        `Calling answerCall() is not allowed when call status is ${
-          sipState.callStatus
-        } and call direction is ${
-          sipState.callDirection
-        }  (expected ${ISip.ECallStatus.Starting } and ${ISip.ECallDirection.Incoming})`,
+        `Calling answerCall() is not allowed when call status is ${sipState.callStatus
+        } and call direction is ${sipState.callDirection
+        }  (expected ${ISip.ECallStatus.Starting} and ${ISip.ECallDirection.Incoming})`,
       );
     }
 
@@ -195,10 +192,10 @@ const SipProvider = ({
       return;
     }
     let ua;
-    
+
     try {
       const socket = new JsSIP.WebSocketInterface(
-        `wss://${host}:${port}${pathname}`,
+        `ws://${host}:${port}${pathname}`,
       );
       ua = new JsSIP.UA({
         uri: `sip:${username}@${host}`,
@@ -226,14 +223,24 @@ const SipProvider = ({
       setSipStatus(ISip.EStatus.Connected);
     });
 
-    ua.on('disconnected', () => {
-      logger.debug('UA "disconnected" event');
-      setSipStatus(ISip.EStatus.Error,
-        {
-          type: ISip.EErrorTypes.Connection,
-          message: 'disconnected'
-        }
-      );
+    ua.on('disconnected', (event) => {
+      if (event.error) {
+        setSipStatus(ISip.EStatus.Error,
+          {
+            type: ISip.EErrorTypes.Connection,
+            message: 'disconnected',
+            data: event
+          }
+        );
+      } else {
+        logger.debug('UA "disconnected" event', event);
+        setSipStatus(ISip.EStatus.Disconnected,
+          {
+            type: ISip.EErrorTypes.Connection,
+            message: 'disconnected'
+          }
+        );
+      }
     });
 
     ua.on('registered', (data) => {

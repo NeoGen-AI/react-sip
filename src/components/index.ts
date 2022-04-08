@@ -1,7 +1,7 @@
 import * as JsSIP from "jssip";
 import * as PropTypes from "prop-types";
 import * as React from "react";
-import dummyLogger from "../lib/dummyLogger";
+import logger from "../lib/logger";
 import {
   CALL_DIRECTION_INCOMING,
   CALL_DIRECTION_OUTGOING,
@@ -299,7 +299,7 @@ export default class SipProvider extends React.Component<
       this.logger = console;
     } else {
       JsSIP.debug.disable();
-      this.logger = dummyLogger;
+      this.logger = logger;
     }
   }
 
