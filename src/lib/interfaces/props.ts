@@ -1,15 +1,14 @@
 export interface IProps {
   config: IConfig;
   options: IOptions;
-  children: any;
 }
 
 type IConfig = { 
   host: string;
   port: number;
-  pathname: string;
-  user: string;
-  password: string;
+  username: string;
+  pathname?: string;
+  password?: string;
 }
 
 type IOptions = {
@@ -19,7 +18,16 @@ type IOptions = {
   sessionTimersExpires?: number;
   debug?: boolean;
   extraHeaders?: ExtraHeaders;
-  // iceServers: IceServers;
+  iceServers?: any;
+}
+
+export type IReturnValues = {
+  sip: any;
+  registerSip: any;
+  unregisterSip: any;
+  answerCall: any;
+  startCall: any;
+  stopCall: any;
 }
 
 export interface ExtraHeaders {
