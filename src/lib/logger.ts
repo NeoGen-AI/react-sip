@@ -4,8 +4,11 @@ const sipLogger = {
     /**/
   },
   error: (str: string, event: any) => {
-    const reason = getStatusCodeString[event.code];
-    console.log(`Error: ${str}: ${reason}`, event);
+    let reason = '';
+    if (event) {
+      reason = getStatusCodeString[event?.code];
+    }
+    console.log(`Error: ${str}: ${reason}`);
   },
   warn: (...args: any) => {
     console.log(args);

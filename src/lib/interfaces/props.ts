@@ -18,8 +18,16 @@ type IOptions = {
   sessionTimersExpires?: number;
   debug?: boolean;
   extraHeaders?: ExtraHeaders;
-  iceServers?: any;
+  iceServers?: IceServers;
 }
+
+export type IceServers = Array<{
+  urls: string | string[];
+  username?: string;
+  credential?: string;
+  credentialType?: string;
+  password?: string;
+}>;
 
 export type IReturnValues = {
   sip: any;
