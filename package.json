@@ -2,10 +2,10 @@
   "name": "react-sip",
   "version": "0.8.1",
   "description": "React wrapper for jssip",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "rimraf dist && tsc --project .",
+    "build": "tsc --project .",
     "build:watch": "rimraf dist && tsc --project . --watch",
     "format": "prettier --write --ignore-path .gitignore \"{.,src/**}/{*.js,*.ts,*.md,*.json}\"",
     "lint": "tsc --project . --noEmit && tslint --project . && prettier-check --ignore-path .gitignore \"{.,src/**}/{*.js,*.ts,*.md,*.json}\"",
